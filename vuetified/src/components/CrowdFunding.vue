@@ -141,7 +141,8 @@ const depositFunds = () => {
                 <div v-if="isMounted">
                     <ProjectInfo :targetAmount="targetAmount" />                
                     <br />
-                    <AccountStats :isSignedIn="isSignedIn" :wallet="wallet" />                           
+                    <AccountStats :isSignedIn="isSignedIn" :wallet="wallet" />     
+                    <br />                   
                 </div>
 
                 <label v-else>Loading... Please Wait!! </label>                
