@@ -25,9 +25,24 @@ const disconnectWallet = () => {
             <v-expansion-panel-text>
                 <label v-if="!props.isSignedIn">Wallet is not connected</label>
                 <div v-else>
-                    <label class="font-weight-bold">Wallet Balance</label>
-                    <label>Total Deposit</label>
-                    <v-btn>Claim</v-btn>
+                    <v-row>
+                        <v-col class="text-left font-weight-bold mt-3">
+                            <label class="mr-4">Funds Deposited (in Total)</label>
+                            <label>$0</label>
+                        </v-col>
+                        <v-col class="text-left font-weight-bold mt-3">
+                            <v-text-field density="compact" variant="outlined" class="mr-4 w-25"></v-text-field>
+                            <v-btn color="info">Claim</v-btn>
+                        </v-col>   
+                    </v-row>
+                    <v-row>
+                        <v-col class="text-left font-weight-bold">
+                            <label class="mr-4">Wallet Balance</label>
+                        </v-col>
+                        <v-col class="text-left font-weight-bold">
+                            <v-label>Claims will enabled after funding deadline only when funding target is not reached</v-label>
+                        </v-col>                        
+                    </v-row>
                 </div>
             </v-expansion-panel-text>
         </v-expansion-panel>

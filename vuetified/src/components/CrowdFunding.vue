@@ -4,7 +4,9 @@ import { Contract } from '../connectors/near-interface'
 import { Wallet } from '../connectors/near-wallet'
 import { CONTRACT_NAME } from '../config/app-settings'
 import ProjectInfo from './sub/ProjectInfo.vue'
-import AccountStats from './sub/AccountStats.vue';
+import AccountStats from './sub/AccountStats.vue'
+import FundStats from './sub/FundStats.vue'
+import FundsDepositBox from './sub/FundsDepositBox.vue'
 
 // When creating the wallet you can choose to create an access key, so the user
 // can skip signing non-payable methods when interacting with the contract
@@ -16,6 +18,7 @@ const contract = new Contract({ contractId: CONTRACT_NAME, walletToUse: wallet }
 let targetAmount = ref(0)
 let isSignedIn = ref(false)
 let isMounted = ref(false)
+let deposits = ref([])
 
 onMounted(async () => {
     console.log('mounted')
@@ -28,7 +31,7 @@ onMounted(async () => {
     }
 
     // fetchBeneficiary()
-    await getAndShowDonations()
+    await getAndShowDeposits()
     await getAndShowContractData()
 
     isMounted.value = !isMounted.value
@@ -66,12 +69,12 @@ async function signedInFlow() {
 
 }
 
-async function getAndShowDonations(){
+async function getAndShowDeposits(){
 //   document.getElementById('donations-table').innerHTML = 'Loading ...'
 
   // Load last 10 donations
-  let donations = await contract.latestDonations()
-  console.log(donations)
+  deposits.value = await contract.latestDeposits()
+  console.log(deposits.value)
 
 //   document.getElementById('donations-table').innerHTML = ''
 
@@ -107,29 +110,6 @@ const getAndShowContractData = async () => {
   // console.log('yo2', date2.toString())
 //   document.getElementById('funding_deadline').innerHTML = new Date(date2.setDate(date2.getDate() + 90))
 }
-
-const desserts= [
-          {
-            name: 'Frozen Yogurt',
-            calories: 159,
-          },
-          {
-            name: 'Ice cream sandwich',
-            calories: 237,
-          },
-          {
-            name: 'Eclair',
-            calories: 262,
-          },
-          {
-            name: 'Cupcake',
-            calories: 305,
-          }
-        ]
-
-const depositFunds = () => {
-    console.log('deposit funds')
-}
 </script>
 
 <template>
@@ -142,74 +122,19 @@ const depositFunds = () => {
                     <ProjectInfo :targetAmount="targetAmount" />                
                     <br />
                     <AccountStats :isSignedIn="isSignedIn" :wallet="wallet" />     
-                    <br />                   
+                    <br />     
+                    <v-row>
+                        <v-col>
+                            <FundStats :deposits="deposits" />
+                        </v-col>
+                        <v-col>
+                            <FundsDepositBox />
+                        </v-col>
+                    </v-row>             
                 </div>
 
                 <label v-else>Loading... Please Wait!! </label>                
                
-                <section>
-                    <v-row>
-                        <v-col>
-                            <v-table>
-                                <thead>
-                                <tr>
-                                    <th class="text-left">
-                                    Investor
-                                    </th>
-                                    <th class="text-left">
-                                    Total Fund Deposited Ⓝ
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr
-                                    v-for="item in desserts"
-                                    :key="item.name"
-                                >
-                                    <td>{{ item.name }}</td>
-                                    <td>{{ item.calories }}</td>
-                                </tr>
-                                </tbody>
-                            </v-table>
-                        </v-col>
-                        <v-col>
-                            <v-card variant="outlined">                                
-                                <v-card-item>
-                                    <v-card-title>Deposit your Funds</v-card-title>
-                                    <!-- <v-card-subtitle>TEST</v-card-subtitle> -->
-                                </v-card-item>
-                                <v-row>
-                                    <v-btn>
-                                        <v-chip color="primary" variant="elevated">$50</v-chip>
-                                    </v-btn>
-                                    <v-btn>
-                                        <v-chip color="primary" variant="elevated">$100</v-chip>
-                                    </v-btn>
-                                    <v-btn>
-                                        <v-chip color="primary" variant="elevated">$250</v-chip>
-                                    </v-btn>
-                                    <v-btn>
-                                        <v-chip color="primary" variant="elevated">$500</v-chip>
-                                    </v-btn>
-                                </v-row>
-                                <v-card-text>Fund deposit amount (in Ⓝ)</v-card-text>
-                                <v-card-text>
-                                    <v-row>
-                                        <v-text-field
-                                            density="compact"
-                                            variant="solo"
-                                            label=""
-                                            single-line
-                                            hide-details                                                                                      
-                                        ></v-text-field>
-                                        <v-chip label>Ⓝ</v-chip>
-                                        <v-btn color="primary" @click="depositFunds">Deposit Fund</v-btn>
-                                    </v-row>
-                                </v-card-text>
-                            </v-card>
-                        </v-col>
-                    </v-row>
-                </section>
                 <section>
                     Beneficiary Activity
                     <v-btn>Claim</v-btn>
