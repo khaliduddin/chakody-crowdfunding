@@ -31,7 +31,7 @@ const disconnectWallet = () => {
                             <label>$0</label>
                         </v-col>
                         <v-col class="text-left font-weight-bold mt-3">
-                            <v-text-field density="compact" variant="outlined" class="mr-4 w-25"></v-text-field>
+                            <!-- <v-text-field density="compact" variant="outlined" class="mr-4 w-25"></v-text-field> -->
                             <v-btn color="info">Claim</v-btn>
                         </v-col>   
                     </v-row>

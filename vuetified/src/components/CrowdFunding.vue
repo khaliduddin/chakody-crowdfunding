@@ -133,31 +133,20 @@ const getAndShowContractData = async () => {
                     </v-row>             
                 </div>
 
-                <label v-else>Loading... Please Wait!! </label>                
-               
-                <section>
-                    Beneficiary Activity
+                <label v-else>Loading... Please Wait!! </label>    
+                
+                <v-sheet class="pa-4 my-4 bg-grey-lighten-1">
+                    <v-label>Beneficiary Activity</v-label>
+                    <br />
                     <v-btn>Claim</v-btn>
+                    <v-spacer />
                     <v-btn>Change Deadline</v-btn>
-                </section>
-                <section>
-                    Development Data
-                </section>
-            </v-sheet>
-            <!-- <v-btn
-                href="https://chakody.com/"
-                min-width="164"
-                target="_blank"
-                variant="text"
-            >
-                <v-icon
-                icon="mdi-view-dashboard"
-                size="large"
-                start
-                />
+                </v-sheet>
 
-                Responsive Components
-            </v-btn> -->
+                <v-sheet class="pa-4 my-4 bg-grey-darken-1">
+                    Development Data
+                </v-sheet>               
+            </v-sheet>            
         </v-responsive>
     </v-container>
 </template>
