@@ -9,6 +9,11 @@ const disconnectWallet = () => {
     props.wallet.signOut()
 }
 
+// const test = async () => {
+//     console.log('wallet obj ', props.wallet)
+//     console.log(props.wallet.accountId)
+//     console.log(await props.wallet.walletSelector.store.getState())
+// }
 
 </script>
 <template>
@@ -38,6 +43,8 @@ const disconnectWallet = () => {
                     <v-row>
                         <v-col class="text-left font-weight-bold">
                             <label class="mr-4">Wallet Balance</label>
+                            <!-- <label class="mr-4"></label> -->
+                            <!-- <v-btn @click="test">Test</v-btn> -->
                         </v-col>
                         <v-col class="text-left font-weight-bold">
                             <v-label>Claims will enabled after funding deadline only when funding target is not reached</v-label>

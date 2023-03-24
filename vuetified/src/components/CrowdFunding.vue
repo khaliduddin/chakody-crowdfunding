@@ -128,7 +128,7 @@ const getAndShowContractData = async () => {
                             <FundStats :deposits="deposits" />
                         </v-col>
                         <v-col>
-                            <FundsDepositBox />
+                            <FundsDepositBox :contract="contract" />
                         </v-col>
                     </v-row>             
                 </div>
