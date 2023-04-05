@@ -38,6 +38,12 @@ export class Contract {
     return deadline
   }
 
+  async getDepositsTotal() {
+    const depositsTotal = await this.wallet.viewMethod({ contractId: this.contractId, method: "deposits_total" })
+    // console.log(depositsTotal / 10**24)
+    return depositsTotal / 10**24
+  }
+
   async getDonationFromTransaction(txhash) {
     let donation_amount = await this.wallet.getTransactionResult(txhash);
     return utils.format.formatNearAmount(donation_amount);

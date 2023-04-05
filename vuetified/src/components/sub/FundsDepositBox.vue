@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 const props = defineProps(['contract'])
 const CLEAR = ''
-const MIN_DEPOSIT = 100
+const MIN_DEPOSIT = 1
 
 let txnInProgress = false
 
@@ -21,12 +21,12 @@ const depositFunds = async () => {
     try {
         if(validDeposit() && !txnInProgress) {
             txnInProgress = true
-            // await props.contract.deposit(donation.value)
+            await props.contract.deposit(usd2near.value)
             depositMessage.value = 'Deposit is successful'
             // props.contract.getAndShowDeposits()       
             txnInProgress = !txnInProgress     
         } else {
-            depositMessage.value = 'Deposit amount is not valid, require to be Minimum $100 or Deposit Transaction is already in progress! Please wait and try again.'
+            depositMessage.value = 'Please check below options and try again <br/>1. Deposit amount is required a Minimum $100<br/>2. Deposit Transaction might be already in progress!'
         }                
     } catch (error) {
         txnInProgress = false
@@ -64,6 +64,7 @@ const clearInput = () => {
     usdAmount.value = CLEAR
     usd2near.value = CLEAR
     customUsd.value = CLEAR
+    depositMessage.value = CLEAR
 }
 </script>
 <template>
@@ -134,8 +135,8 @@ const clearInput = () => {
             <v-btn class="mt-6 mb-6" color="primary" @click="depositFunds" :disabled="(usd2near == CLEAR)? 'disabled': false">
                 Deposit Fund
             </v-btn>
-            <v-row>
-                <v-label>{{ depositMessage }}</v-label>
+            <v-row>                
+                <v-label class="d-flex flex-wrap">{{ depositMessage }}</v-label>
             </v-row>
         </v-card-text>
     </v-card>

@@ -7,6 +7,7 @@ import ProjectInfo from './sub/ProjectInfo.vue'
 import AccountStats from './sub/AccountStats.vue'
 import FundStats from './sub/FundStats.vue'
 import FundsDepositBox from './sub/FundsDepositBox.vue'
+import { findNear2UsdPrice, roundToTwoDecimals } from '@/connectors/common';
 
 // When creating the wallet you can choose to create an access key, so the user
 // can skip signing non-payable methods when interacting with the contract
@@ -19,6 +20,11 @@ let targetAmount = ref(0)
 let isSignedIn = ref(false)
 let isMounted = ref(false)
 let deposits = ref([])
+let closingDate = ref(0)
+let totalDeposits = ref({
+    nearAmount: 0,
+    usdAmount: 0
+})
 
 onMounted(async () => {
     console.log('mounted')
@@ -103,12 +109,23 @@ const getAndShowContractData = async () => {
   targetAmount.value = await contract.getTargetAmount()
   console.log('target', targetAmount.value)
 
-  // let deadline = await contract.getFundingDeadline()
+  let deadline = await contract.getFundingDeadline()
+//   closingDate.value = new Date(deadline/1000000).toLocaleDateString("en-US")
+  closingDate.value = new Date(deadline/1000000)
+  closingDate.value.setDate(closingDate.value.getDate() + 90)
+  closingDate.value = closingDate.value.toLocaleDateString("en-US")
 
-  // var date2 = new Date(deadline/1000000) // 1678991332821693200 nanoseconds to milliseconds
-  // console.log('yo1', date2)
-  // console.log('yo2', date2.toString())
-//   document.getElementById('funding_deadline').innerHTML = new Date(date2.setDate(date2.getDate() + 90))
+  let totalNearAmount = await contract.getDepositsTotal()
+  totalDeposits.value.nearAmount = roundToTwoDecimals(totalNearAmount)
+  totalDeposits.value.usdAmount = await getUsdFromNear(totalNearAmount)
+  
+}
+
+const getUsdFromNear = async (amount_in_near) => {
+    const near2usd = await findNear2UsdPrice()
+    const amount_in_usd = amount_in_near * near2usd
+    const rounded_two_decimals = roundToTwoDecimals(amount_in_usd)
+    return rounded_two_decimals
 }
 </script>
 
@@ -119,7 +136,10 @@ const getAndShowContractData = async () => {
                 <h2 class="pb-6 text-primary">CHAKODY L.L.C | CrowdFunding for Pre-seed round</h2>  
                 
                 <div v-if="isMounted">
-                    <ProjectInfo :targetAmount="targetAmount" />                
+                    <ProjectInfo 
+                        :targetAmount="targetAmount" 
+                        :deadline="closingDate"
+                        :totalDeposits = "totalDeposits" />                
                     <br />
                     <AccountStats :isSignedIn="isSignedIn" :wallet="wallet" />     
                     <br />     
@@ -127,7 +147,7 @@ const getAndShowContractData = async () => {
                         <v-col>
                             <FundStats :deposits="deposits" />
                         </v-col>
-                        <v-col>
+                        <v-col cols="6">
                             <FundsDepositBox :contract="contract" />
                         </v-col>
                     </v-row>             

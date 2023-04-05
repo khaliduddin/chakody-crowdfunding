@@ -124,4 +124,8 @@ impl Contract {
       //since we turned map into an iterator, we need to turn it back into a vector to return
       .collect()
   }
+
+  pub fn deposits_total() -> u128 {
+    env::account_balance()
+  }
 }

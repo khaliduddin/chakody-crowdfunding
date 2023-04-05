@@ -1,7 +1,9 @@
 <script setup>
-const props = defineProps(['targetAmount'])
+// import { findNear2UsdPrice } from '@/connectors/common'
+const props = defineProps(['targetAmount', 'deadline', 'totalDeposits'])
 const targetAmount = props.targetAmount
 console.log(props.targetAmount)
+// console.log(await findNear2UsdPrice())
 </script>
 <template>
     <v-card>
@@ -14,13 +16,16 @@ console.log(props.targetAmount)
                 </v-col>                            
                 <v-col class="text-right font-weight-bold">
                     <label>Crowdfunding Deadline</label>
-                    <label class="ml-2 text-h6 text-decoration-underline">Date</label>
+                    <label class="ml-2 text-h6 text-decoration-underline">{{ props.deadline }}</label>
                 </v-col>
             </v-row>
             <v-row>
                 <v-col class="text-left font-weight-bold">                                
                     <label>Received Total Funds</label>
-                    <label class="ml-2 text-h6 text-decoration-underline">$0</label>
+                    <label class="ml-2 text-h6 text-decoration-underline">
+                        ${{ props.totalDeposits.usdAmount }}
+                        [Ⓝ {{ props.totalDeposits.nearAmount }}]
+                    </label>
                 </v-col>                            
                 <v-col class="text-right">                    
                     <v-btn rounded="pill" size="small" color="info">Project Info</v-btn>
