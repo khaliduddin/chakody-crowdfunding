@@ -25,6 +25,16 @@ let totalDeposits = ref({
     nearAmount: 0,
     usdAmount: 0
 })
+let walletAccountDeposit = ref(0)
+let targetAmountInNear = ref(0)
+let projectBeneficiary = ref('')
+
+const setNearAmount = async (amount) => {    
+    const near2usd = await findNear2UsdPrice()
+    const amount_in_near = amount / near2usd
+    const rounded_two_decimals = Math.round(amount_in_near * 100) / 100
+    targetAmountInNear.value = rounded_two_decimals
+}
 
 onMounted(async () => {
     console.log('mounted')
@@ -36,9 +46,10 @@ onMounted(async () => {
         signedOutFlow()
     }
 
-    // fetchBeneficiary()
+    projectBeneficiary.value = await fetchBeneficiary()
     await getAndShowDeposits()
     await getAndShowContractData()
+    await setNearAmount(targetAmount.value)
 
     isMounted.value = !isMounted.value
 })
@@ -61,49 +72,33 @@ async function signedInFlow() {
   if(txhash !== null){
     // Get result from the transaction
     let result = await contract.getDonationFromTransaction(txhash)
-    console.log(result)
-    // document.querySelector('[data-behavior=donation-so-far]').innerText = result
-
-    // show notification
-    // document.querySelector('[data-behavior=notification]').style.display = 'block'
-
-    // remove notification again after css animation completes
-    // setTimeout(() => {
-    //   document.querySelector('[data-behavior=notification]').style.display = 'none'
-    // }, 11000)
+    console.log(result)    
   }
 
 }
 
 async function getAndShowDeposits(){
 //   document.getElementById('donations-table').innerHTML = 'Loading ...'
-
-  // Load last 10 donations
+  
   deposits.value = await contract.latestDeposits()
   console.log(deposits.value)
 
-//   document.getElementById('donations-table').innerHTML = ''
+  deposits.value.forEach(element => {
+    console.log(`deposit of ${element.account_id} is ${element.total_amount} `, )
+    totalDeposits.value.nearAmount += parseFloat(element.total_amount)
+    if(element.account_id === wallet.accountId) {
+        walletAccountDeposit = element.total_amount
+    }    
 
-//   donations.forEach(elem => {
-//     let tr = document.createElement('tr')
-//     tr.innerHTML = `
-//       <tr>
-//         <th scope="row">${elem.account_id}</th>
-//         <td>${elem.total_amount}</td>
-//       </tr>
-//     `
-//     document.getElementById('donations-table').appendChild(tr)
-//   })
+    console.log('***********', element.account_id === wallet.accountId ? element.total_amount : 0)
+  });
+
+  totalDeposits.value.nearAmount = roundToTwoDecimals(totalDeposits.value.nearAmount)
+  totalDeposits.value.usdAmount = await getUsdFromNear(totalDeposits.value.nearAmount)
 }
 
-// const connectWallet = () => {
-//     wallet.signIn()
-// }
-
 const getAndShowContractData = async () => {
-  // Load last 10 donations
-  // let contractData = await contract.contractData()
-
+  
   console.log('contract data block')
 
   targetAmount.value = await contract.getTargetAmount()
@@ -113,12 +108,11 @@ const getAndShowContractData = async () => {
 //   closingDate.value = new Date(deadline/1000000).toLocaleDateString("en-US")
   closingDate.value = new Date(deadline/1000000)
   closingDate.value.setDate(closingDate.value.getDate() + 90)
-  closingDate.value = closingDate.value.toLocaleDateString("en-US")
+  closingDate.value = closingDate.value.toLocaleDateString("en-US")  
+}
 
-  let totalNearAmount = await contract.getDepositsTotal()
-  totalDeposits.value.nearAmount = roundToTwoDecimals(totalNearAmount)
-  totalDeposits.value.usdAmount = await getUsdFromNear(totalNearAmount)
-  
+const fetchBeneficiary = async () => {
+    return await contract.getBeneficiary()
 }
 
 const getUsdFromNear = async (amount_in_near) => {
@@ -138,10 +132,14 @@ const getUsdFromNear = async (amount_in_near) => {
                 <div v-if="isMounted">
                     <ProjectInfo 
                         :targetAmount="targetAmount" 
+                        :targetAmountInNear="targetAmountInNear"
                         :deadline="closingDate"
                         :totalDeposits = "totalDeposits" />                
                     <br />
-                    <AccountStats :isSignedIn="isSignedIn" :wallet="wallet" />     
+                    <AccountStats 
+                        :isSignedIn="isSignedIn" 
+                        :wallet="wallet" 
+                        :walletAccountDeposit="walletAccountDeposit" />     
                     <br />     
                     <v-row>
                         <v-col>
@@ -155,8 +153,9 @@ const getUsdFromNear = async (amount_in_near) => {
 
                 <label v-else>Loading... Please Wait!! </label>    
                 
-                <v-sheet class="pa-4 my-4 bg-grey-lighten-1">
+                <v-sheet class="pa-4 my-4 bg-grey-lighten-1" v-if="projectBeneficiary === wallet.accountId">
                     <v-label>Beneficiary Activity</v-label>
+                    <v-label>{{ projectBeneficiary }}</v-label>
                     <br />
                     <v-btn>Claim</v-btn>
                     <v-spacer />

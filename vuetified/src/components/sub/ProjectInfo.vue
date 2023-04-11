@@ -1,6 +1,8 @@
 <script setup>
+import ProjectInfoDialog from './ProjectInfoDialog.vue';
+
 // import { findNear2UsdPrice } from '@/connectors/common'
-const props = defineProps(['targetAmount', 'deadline', 'totalDeposits'])
+const props = defineProps(['targetAmount', 'deadline', 'totalDeposits', 'targetAmountInNear'])
 const targetAmount = props.targetAmount
 console.log(props.targetAmount)
 // console.log(await findNear2UsdPrice())
@@ -13,6 +15,7 @@ console.log(props.targetAmount)
                 <v-col class="text-left font-weight-bold">
                     <label>Target Fund Amount (in USD)</label>
                     <label class="ml-2 text-h6 text-decoration-underline">${{ targetAmount }}</label>
+                    <label> [Ⓝ {{ props.targetAmountInNear }}]</label>
                 </v-col>                            
                 <v-col class="text-right font-weight-bold">
                     <label>Crowdfunding Deadline</label>
@@ -23,13 +26,14 @@ console.log(props.targetAmount)
                 <v-col class="text-left font-weight-bold">                                
                     <label>Received Total Funds</label>
                     <label class="ml-2 text-h6 text-decoration-underline">
-                        ${{ props.totalDeposits.usdAmount }}
-                        [Ⓝ {{ props.totalDeposits.nearAmount }}]
+                        ${{ props.totalDeposits.usdAmount }}                        
                     </label>
+                    <label> [Ⓝ {{ props.totalDeposits.nearAmount }}]</label>
                 </v-col>                            
                 <v-col class="text-right">                    
-                    <v-btn rounded="pill" size="small" color="info">Project Info</v-btn>
-                    <v-btn class="ml-2" rounded="pill" size="small" color="primary">FAQ</v-btn>
+                    <!-- <v-btn rounded="pill" size="small" color="info">Project Info</v-btn> -->
+                    <!-- <v-btn class="ml-2" rounded="pill" size="small" color="primary">FAQ</v-btn> -->
+                    <project-info-dialog />
                 </v-col>
             </v-row>
         </v-card-text>

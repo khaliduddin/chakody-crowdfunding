@@ -8,8 +8,8 @@ const props = defineProps(['deposits'])
             <th class="text-left">
             Investor
             </th>
-            <th class="text-left">
-            Total Fund Deposited Ⓝ
+            <th class="text-center">
+            Fund Deposit Ⓝ
             </th>
         </tr>
         </thead>
@@ -18,7 +18,7 @@ const props = defineProps(['deposits'])
             v-for="item in props.deposits"
             :key="item.account_id"
         >
-            <td>{{ item.account_id }}</td>
+            <td class="text-left">{{ item.account_id }}</td>
             <td>{{ item.total_amount }}</td>
         </tr>
         </tbody>
