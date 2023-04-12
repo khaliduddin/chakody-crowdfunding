@@ -51,7 +51,7 @@ impl Contract {
     U128(funded_so_far)
   }
 
-  pub fn claim(&mut self) {  
+  pub fn claim(&mut self, claim_amount: f64) {  
     assert!(
       self.deadline > env::block_timestamp(),
       "Crowdfunding is not closed"
@@ -62,7 +62,8 @@ impl Contract {
 
     if requester == self.beneficiary {     
       assert!(
-        total_funds >= self.target as u128,
+        // total_funds >= self.target as u128 && 
+        claim_amount >= self.target as f64,
         "Total Funds did not meet the target requirement"
       );
 
@@ -72,14 +73,15 @@ impl Contract {
       Promise::new(self.beneficiary.clone()).transfer(to_transfer);
     } else {
       assert!(
-        total_funds < self.target as u128,
+        // total_funds < self.target as u128,
+        claim_amount < self.target as f64,
         "Funding round is successful. You cannot claim now!"
       );
 
       let funded_so_far = self.deposits.get(&requester).unwrap_or(0);
       // let mut funded_so_far = self.deposits.get(&investor).unwrap_or(0);
 
-      assert!(funded_so_far > 0, "There is no funds from you. No claims apply!");
+      assert!(funded_so_far > 0, "There is no funds from you. Claim not allowed.");
 
       let to_transfer: Balance = funded_so_far - STORAGE_COST;      
 
@@ -87,13 +89,7 @@ impl Contract {
 
       // Clear investor balance
       self.deposits.insert(&requester, &0);
-    }
-    // assert!(
-    //   env::predecessor_account_id() == self.beneficiary,
-    //   "Only beneficiary can claim the funds!"
-    // );
-
-    // Promise::new(self.beneficiary.clone()).transfer(to_transfer);
+    }    
   }
 
   // Public - get donation by account ID

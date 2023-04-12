@@ -97,6 +97,11 @@ impl Contract {
     pub fn change_deadline(&mut self, _new_deadline: u64) {
         self.deadline = _new_deadline;
     }
+
+    #[private]
+    pub fn change_target(&mut self, _new_target: u64) {
+        self.target = _new_target;
+    }
 }
 
 /*

@@ -16,6 +16,8 @@ const wallet = new Wallet({ createAccessKeyFor: CONTRACT_NAME })
 // Abstract the logic of interacting with the contract to simplify your project
 const contract = new Contract({ contractId: CONTRACT_NAME, walletToUse: wallet });
 
+const telegramChannel = 'telegram'
+
 let targetAmount = ref(0)
 let isSignedIn = ref(false)
 let isMounted = ref(false)
@@ -28,6 +30,7 @@ let totalDeposits = ref({
 let walletAccountDeposit = ref(0)
 let targetAmountInNear = ref(0)
 let projectBeneficiary = ref('')
+let beneficiaryClaimMessage = ref('')
 
 const setNearAmount = async (amount) => {    
     const near2usd = await findNear2UsdPrice()
@@ -115,6 +118,19 @@ const fetchBeneficiary = async () => {
     return await contract.getBeneficiary()
 }
 
+const claimFunds = async () => {
+    beneficiaryClaimMessage.value = ''
+    console.log('claiming project funds')
+    if(closingDate.value > new Date()) {
+        console.log('funding closed -> ', totalDeposits.value)        
+        await contract.claim(totalDeposits.value)
+        console.log('claim successful')
+        beneficiaryClaimMessage.value = 'Claim Successful'
+    } else {
+        beneficiaryClaimMessage.value = 'Funding deadline is not reached'
+    }
+}
+
 const getUsdFromNear = async (amount_in_near) => {
     const near2usd = await findNear2UsdPrice()
     const amount_in_usd = amount_in_near * near2usd
@@ -148,22 +164,41 @@ const getUsdFromNear = async (amount_in_near) => {
                         <v-col cols="6">
                             <FundsDepositBox :contract="contract" />
                         </v-col>
-                    </v-row>             
+                    </v-row>  
+                    <v-sheet class="pa-4 my-4 bg-grey-lighten-1" v-if="projectBeneficiary === wallet.accountId">
+                        <v-label class="pa-2">Beneficiary Activity</v-label>
+                        <v-row>
+                            <v-col>
+                                <v-label>Beneficiary Id</v-label>
+                                <v-spacer />
+                                <v-label>{{ projectBeneficiary }}</v-label>
+                            </v-col>
+                            <v-col>
+                                <v-btn @click="claimFunds">Claim</v-btn>
+                                <v-alert class="my-3" :text="beneficiaryClaimMessage"></v-alert>                                
+                            </v-col>
+                        </v-row>                        
+                    </v-sheet>           
                 </div>
 
-                <label v-else>Loading... Please Wait!! </label>    
+                <label v-else>Loading... Please Wait!! </label>
                 
-                <v-sheet class="pa-4 my-4 bg-grey-lighten-1" v-if="projectBeneficiary === wallet.accountId">
-                    <v-label>Beneficiary Activity</v-label>
-                    <v-label>{{ projectBeneficiary }}</v-label>
-                    <br />
-                    <v-btn>Claim</v-btn>
-                    <v-spacer />
-                    <v-btn>Change Deadline</v-btn>
-                </v-sheet>
-
                 <v-sheet class="pa-4 my-4 bg-grey-darken-1">
-                    Development Data
+                    Contact
+                    <v-btn
+                        class="pa-1 ma-2 bg-blue-lighten-3" 
+                        size="small"                         
+                        :href="telegramChannel"
+                        target="_blank"
+                    >
+                        <label class="ml-2">Telegram</label>    
+                        <v-icon
+                            icon="mdi-arrow-top-right-thick"
+                            size="large"                    
+                            color="white"
+                            />
+                        
+                    </v-btn>                    
                 </v-sheet>               
             </v-sheet>            
         </v-responsive>

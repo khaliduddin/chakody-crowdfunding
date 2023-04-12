@@ -55,9 +55,15 @@ export class Contract {
     return response
   }
 
-  async changeBeneficiary(newBeneficiary) {    
-    let response = await this.wallet.callMethod({ contractId: this.contractId, method: "change_beneficiary", newBeneficiary })
+  async claim(amount) {
+    // let deposit = utils.format.parseNearAmount(amount.toString())
+    let response = await this.wallet.callMethod({ contractId: this.contractId, method: "claim", amount })
     return response
   }
+
+  // async changeBeneficiary(newBeneficiary) {    
+  //   let response = await this.wallet.callMethod({ contractId: this.contractId, method: "change_beneficiary", newBeneficiary })
+  //   return response
+  // }
 
 }
