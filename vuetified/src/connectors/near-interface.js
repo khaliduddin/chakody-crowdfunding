@@ -57,7 +57,13 @@ export class Contract {
 
   async claim(amount) {
     // let deposit = utils.format.parseNearAmount(amount.toString())
-    let response = await this.wallet.callMethod({ contractId: this.contractId, method: "claim", amount })
+    let response = ''
+    try {
+      response = await this.wallet.callMethod({ contractId: this.contractId, method: "claim", args: { claim_amount: amount } })      
+    } catch (error) {
+      response = error.message
+    }
+    
     return response
   }
 

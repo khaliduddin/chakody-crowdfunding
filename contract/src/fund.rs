@@ -53,7 +53,7 @@ impl Contract {
 
   pub fn claim(&mut self, claim_amount: f64) {  
     assert!(
-      self.deadline > env::block_timestamp(),
+      self.deadline < env::block_timestamp(),
       "Crowdfunding is not closed"
     );
 
@@ -73,8 +73,7 @@ impl Contract {
       Promise::new(self.beneficiary.clone()).transfer(to_transfer);
     } else {
       assert!(
-        // total_funds < self.target as u128,
-        claim_amount < self.target as f64,
+        total_funds < self.target as u128,
         "Funding round is successful. You cannot claim now!"
       );
 

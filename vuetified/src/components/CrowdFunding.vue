@@ -17,6 +17,7 @@ const wallet = new Wallet({ createAccessKeyFor: CONTRACT_NAME })
 const contract = new Contract({ contractId: CONTRACT_NAME, walletToUse: wallet });
 
 const telegramChannel = 'telegram'
+const DAYS_FOR_DEADLINE = 10
 
 let targetAmount = ref(0)
 let isSignedIn = ref(false)
@@ -110,7 +111,7 @@ const getAndShowContractData = async () => {
   let deadline = await contract.getFundingDeadline()
 //   closingDate.value = new Date(deadline/1000000).toLocaleDateString("en-US")
   closingDate.value = new Date(deadline/1000000)
-  closingDate.value.setDate(closingDate.value.getDate() + 90)
+  closingDate.value.setDate(closingDate.value.getDate() + DAYS_FOR_DEADLINE)
   closingDate.value = closingDate.value.toLocaleDateString("en-US")  
 }
 
@@ -120,12 +121,21 @@ const fetchBeneficiary = async () => {
 
 const claimFunds = async () => {
     beneficiaryClaimMessage.value = ''
-    console.log('claiming project funds')
-    if(closingDate.value > new Date()) {
-        console.log('funding closed -> ', totalDeposits.value)        
-        await contract.claim(totalDeposits.value)
-        console.log('claim successful')
-        beneficiaryClaimMessage.value = 'Claim Successful'
+    console.log('claiming project funds ', closingDate.value)
+    if(closingDate.value < new Date().toLocaleDateString("en-US")) {
+        console.log('funding closed -> ', totalDeposits.value.nearAmount)        
+        let result = await contract.claim(totalDeposits.value.nearAmount)
+        
+        if(result.includes("Error")) {
+            result = JSON.parse(result).kind.ExecutionError
+            result = result.substring(0, result.indexOf(", src"))
+            beneficiaryClaimMessage.value = result
+        } else {
+            beneficiaryClaimMessage.value = 'Claim Successful'                
+        }
+
+        // console.log('claim successful')
+        // beneficiaryClaimMessage.value = 'Claim Successful'
     } else {
         beneficiaryClaimMessage.value = 'Funding deadline is not reached'
     }
@@ -136,6 +146,11 @@ const getUsdFromNear = async (amount_in_near) => {
     const amount_in_usd = amount_in_near * near2usd
     const rounded_two_decimals = roundToTwoDecimals(amount_in_usd)
     return rounded_two_decimals
+}
+
+const getDateValue = () => {
+    let nanotime = 1678991332821693200
+    console.log(new Date(nanotime/1000000))
 }
 </script>
 
@@ -155,6 +170,7 @@ const getUsdFromNear = async (amount_in_near) => {
                     <AccountStats 
                         :isSignedIn="isSignedIn" 
                         :wallet="wallet" 
+                        :contract="contract" 
                         :walletAccountDeposit="walletAccountDeposit" />     
                     <br />     
                     <v-row>
@@ -175,7 +191,7 @@ const getUsdFromNear = async (amount_in_near) => {
                             </v-col>
                             <v-col>
                                 <v-btn @click="claimFunds">Claim</v-btn>
-                                <v-alert class="my-3" :text="beneficiaryClaimMessage"></v-alert>                                
+                                <v-alert class="my-3" color="primary" :text="beneficiaryClaimMessage"></v-alert>                                
                             </v-col>
                         </v-row>                        
                     </v-sheet>           
@@ -198,7 +214,9 @@ const getUsdFromNear = async (amount_in_near) => {
                             color="white"
                             />
                         
-                    </v-btn>                    
+                    </v-btn>    
+                    
+                    <!-- <v-btn @click="getDateValue" color="primary">Check Date Value</v-btn> -->
                 </v-sheet>               
             </v-sheet>            
         </v-responsive>

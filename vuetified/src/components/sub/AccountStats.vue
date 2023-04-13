@@ -1,5 +1,12 @@
 <script setup>
-const props = defineProps(['isSignedIn', 'wallet', 'walletAccountDeposit'])
+import { ref } from 'vue'
+
+const props = defineProps(['isSignedIn', 'wallet', 'contract', 'walletAccountDeposit'])
+
+let depositAmount = ref(props.walletAccountDeposit)
+
+let isClaimComplete = ref(true)
+let claimMessage = ref('')
 
 const connectWallet = () => {
     props.wallet.signIn()
@@ -9,12 +16,35 @@ const disconnectWallet = () => {
     props.wallet.signOut()
 }
 
-const test = async () => {
-    console.log('wallet obj ', props.wallet)
-    console.log(props.wallet.accountId)
-    // console.log(await props.wallet.walletSelector.store.getState())
-    console.log(props.walletAccountDeposit)
+const claimFunds = async () => {
+    console.log('claim funds')
+    claimMessage.value = 'Claim is in progress.. Please wait'
+    isClaimComplete.value = false
+    
+    let result = await props.contract.claim(parseFloat(props.walletAccountDeposit))
+
+    if(result.includes("Error")) {
+        result = JSON.parse(result).kind.ExecutionError
+        result = result.substring(0, result.indexOf(", src"))
+        claimMessage.value = result
+    } else {
+        claimMessage.value = 'Claim Successful'    
+        // isClaimComplete = true
+        // props.walletAccountDeposit.value = 0
+        depositAmount.value = 0
+    }
+    
+    isClaimComplete.value = true
+
+    console.log('claim complete -> ',  result)
 }
+
+// const test = async () => {
+    // console.log('wallet obj ', props.wallet)
+    // console.log(props.wallet.accountId)
+    // console.log(props.walletAccountDeposit)
+//     depositAmount.value = 0 
+// }
 
 </script>
 <template>
@@ -35,11 +65,16 @@ const test = async () => {
                     <v-row>
                         <v-col class="text-left font-weight-bold mt-3">
                             <label class="mr-4">Funds Deposited (in Total)</label>
-                            <label>Ⓝ {{ props.walletAccountDeposit }}</label>
+                            <label>Ⓝ {{ depositAmount }}</label>
                         </v-col>
                         <v-col class="text-left font-weight-bold mt-3">
                             <!-- <v-text-field density="compact" variant="outlined" class="mr-4 w-25"></v-text-field> -->
-                            <v-btn color="info">Claim</v-btn>
+                            <v-btn 
+                                @click="claimFunds" 
+                                color="info" 
+                                :disabled="props.walletAccountDeposit > 0 ? false : 'disabled'">Claim</v-btn>
+                            <v-label class="mx-4">{{ claimMessage }}</v-label>
+                            <!-- <v-btn @click="test" color="error">Test</v-btn> -->
                         </v-col>   
                     </v-row>
                     <v-row>
