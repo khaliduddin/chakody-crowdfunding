@@ -55,6 +55,9 @@ impl Contract {
     #[private] // Public - but only callable by env::current_account_id()
     pub fn init(beneficiary: AccountId, _target: u64, _deadline: u64) -> Self {
         assert!(_target > 0, "Target fund must be more than 0");
+        
+        // initial_contract_balance = env::account_balance();
+
         Self {
             target: _target,
             deadline: _deadline,

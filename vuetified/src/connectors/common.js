@@ -25,3 +25,10 @@ export const findNear2UsdPrice = async () => {
 export const roundToTwoDecimals = (num) => {
     return Math.round(num * 100) / 100
 }
+
+export const convertToNanoDate = (simpleDateValue, daysToAdd) => {
+    let nanoDate = new Date()
+    console.log('simple date + 90 days -> ', nanoDate.setDate(simpleDateValue.getDate() + daysToAdd))
+    // closingDate.value = closingDate.value.toLocaleDateString("en-US")  
+    return nanoDate * 1000000
+}

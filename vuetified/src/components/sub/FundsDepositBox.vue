@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 
-const props = defineProps(['contract'])
+const props = defineProps(['contract', 'closingDate'])
 const CLEAR = ''
 const MIN_DEPOSIT = 1
 
@@ -11,6 +11,7 @@ let usdAmount = ref('')
 let usd2near = ref('')
 let customUsd = ref('')
 let depositMessage = ref('')
+let depositBtnText = ref('Deposit Fund')
 
 const depositAmounts = [
     100, 250, 500, 1000
@@ -21,12 +22,14 @@ const depositFunds = async () => {
     try {
         if(validDeposit() && !txnInProgress) {
             txnInProgress = true
+            depositBtnText.value = 'Deposit in Progress.. Please wait'
             await props.contract.deposit(usd2near.value)
             depositMessage.value = 'Deposit is successful'
             // props.contract.getAndShowDeposits()       
             txnInProgress = !txnInProgress     
+            depositBtnText.value = 'Deposit Fund'
         } else {
-            depositMessage.value = 'Please check below options and try again <br/>1. Deposit amount is required a Minimum $100<br/>2. Deposit Transaction might be already in progress!'
+            depositMessage.value = 'Deposit amount is required a Minimum $100'
         }                
     } catch (error) {
         txnInProgress = false
@@ -132,11 +135,12 @@ const clearInput = () => {
                     />
                 </v-btn>     
             </v-row>
-            <v-btn class="mt-6 mb-6" color="primary" @click="depositFunds" :disabled="(usd2near == CLEAR)? 'disabled': false">
-                Deposit Fund
+            <v-label v-if="props.closingDate < new Date().toLocaleDateString('en-US')">Crowdfunding is closed</v-label>
+            <v-btn v-else class="mt-6 mb-6" color="primary" @click="depositFunds" :disabled="(usd2near == CLEAR)? 'disabled': false">
+                {{ depositBtnText }}
             </v-btn>
             <v-row>                
-                <v-label class="d-flex flex-wrap">{{ depositMessage }}</v-label>
+                <v-label class="d-flex flex-wrap text-error font-weight-bold">{{ depositMessage }}</v-label>
             </v-row>
         </v-card-text>
     </v-card>

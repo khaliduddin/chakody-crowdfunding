@@ -7,7 +7,7 @@ import ProjectInfo from './sub/ProjectInfo.vue'
 import AccountStats from './sub/AccountStats.vue'
 import FundStats from './sub/FundStats.vue'
 import FundsDepositBox from './sub/FundsDepositBox.vue'
-import { findNear2UsdPrice, roundToTwoDecimals } from '@/connectors/common';
+import { findNear2UsdPrice, roundToTwoDecimals, convertToNanoDate } from '@/connectors/common';
 
 // When creating the wallet you can choose to create an access key, so the user
 // can skip signing non-payable methods when interacting with the contract
@@ -17,7 +17,7 @@ const wallet = new Wallet({ createAccessKeyFor: CONTRACT_NAME })
 const contract = new Contract({ contractId: CONTRACT_NAME, walletToUse: wallet });
 
 const telegramChannel = 'telegram'
-const DAYS_FOR_DEADLINE = 10
+const DAYS_FOR_DEADLINE = 90
 
 let targetAmount = ref(0)
 let isSignedIn = ref(false)
@@ -32,6 +32,14 @@ let walletAccountDeposit = ref(0)
 let targetAmountInNear = ref(0)
 let projectBeneficiary = ref('')
 let beneficiaryClaimMessage = ref('')
+
+let simpleDateValue = ref(new Date())
+let nanoDate = ref(convertToNanoDate(simpleDateValue.value))
+
+const getNanoDate = () => {
+    console.log('date in nano seconds -> ', convertToNanoDate(simpleDateValue.value))
+    nanoDate.value = convertToNanoDate(simpleDateValue.value, DAYS_FOR_DEADLINE)
+}
 
 const setNearAmount = async (amount) => {    
     const near2usd = await findNear2UsdPrice()
@@ -86,6 +94,8 @@ async function getAndShowDeposits(){
   
   deposits.value = await contract.latestDeposits()
   console.log(deposits.value)
+
+  console.log('Total Deposits -> ', await contract.getDepositsTotal())
 
   deposits.value.forEach(element => {
     console.log(`deposit of ${element.account_id} is ${element.total_amount} `, )
@@ -178,7 +188,7 @@ const getDateValue = () => {
                             <FundStats :deposits="deposits" />
                         </v-col>
                         <v-col cols="6">
-                            <FundsDepositBox :contract="contract" />
+                            <FundsDepositBox :contract="contract" :closingDate="closingDate" />
                         </v-col>
                     </v-row>  
                     <v-sheet class="pa-4 my-4 bg-grey-lighten-1" v-if="projectBeneficiary === wallet.accountId">
@@ -193,7 +203,20 @@ const getDateValue = () => {
                                 <v-btn @click="claimFunds">Claim</v-btn>
                                 <v-alert class="my-3" color="primary" :text="beneficiaryClaimMessage"></v-alert>                                
                             </v-col>
-                        </v-row>                        
+                        </v-row>  
+                        <v-row>
+                            <v-label>Deadline date in Nanosecs</v-label>
+                            <v-text-field 
+                                density="compact" 
+                                variant="filled" 
+                                label="mm/dd/yyyy"
+                                class="mr-4 w-25"
+                                v-model="simpleDateValue"
+                            >
+                            </v-text-field>
+                            <v-btn @click="getNanoDate">Get Nanosecs</v-btn>
+                            <v-label>{{ nanoDate }}</v-label>
+                        </v-row>                      
                     </v-sheet>           
                 </div>
 

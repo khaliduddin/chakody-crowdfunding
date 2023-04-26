@@ -6,7 +6,8 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{env, log, near_bindgen, AccountId, Promise, Balance};
 use near_sdk::json_types::U128;
 
-pub const STORAGE_COST: u128 = 1_000_000_000_000_000_000_000;
+// Maintain 5 NEAR for Storage
+pub const STORAGE_COST: u128 = 5_000_000_000_000_000_000_000_000;
 
 #[derive(BorshDeserialize, BorshSerialize, Serialize)]
 #[serde(crate = "near_sdk::serde")]
@@ -121,6 +122,6 @@ impl Contract {
   }
 
   pub fn deposits_total() -> u128 {
-    env::account_balance()
+    env::account_balance() - STORAGE_COST
   }
 }
