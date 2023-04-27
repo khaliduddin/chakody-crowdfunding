@@ -4,7 +4,7 @@ import ProjectInfoDialog from './ProjectInfoDialog.vue';
 // import { findNear2UsdPrice } from '@/connectors/common'
 const props = defineProps(['targetAmount', 'deadline', 'totalDeposits', 'targetAmountInNear'])
 const targetAmount = props.targetAmount
-console.log(props.targetAmount)
+// console.log(props.targetAmount)
 // console.log(await findNear2UsdPrice())
 </script>
 <template>

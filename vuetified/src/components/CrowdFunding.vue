@@ -33,12 +33,15 @@ let targetAmountInNear = ref(0)
 let projectBeneficiary = ref('')
 let beneficiaryClaimMessage = ref('')
 
-let simpleDateValue = ref(new Date())
-let nanoDate = ref(convertToNanoDate(simpleDateValue.value))
+let deadline = 0
+// let simpleDateValue = ref(new Date())
+let daysToAdd = ref(0)
+let nanoDate = ref(0)
 
 const getNanoDate = () => {
-    console.log('date in nano seconds -> ', convertToNanoDate(simpleDateValue.value))
-    nanoDate.value = convertToNanoDate(simpleDateValue.value, DAYS_FOR_DEADLINE)
+    // console.log('date in nano seconds -> ', convertToNanoDate(daysToAdd.value))
+    // nanoDate.value = convertToNanoDate(simpleDateValue.value, DAYS_FOR_DEADLINE)
+    nanoDate.value = convertToNanoDate(daysToAdd.value)
 }
 
 const setNearAmount = async (amount) => {    
@@ -49,7 +52,7 @@ const setNearAmount = async (amount) => {
 }
 
 onMounted(async () => {
-    console.log('mounted')
+    // console.log('mounted')
     isSignedIn.value = await wallet.startUp();
 
     if (isSignedIn){
@@ -69,7 +72,7 @@ onMounted(async () => {
 // Display the signed-out-flow container
 function signedOutFlow() {
     isSignedIn.value = !isSignedIn.value
-    console.log('sign out')
+    // console.log('sign out')
 //   document.querySelector('.signed-out-flow').style.display = 'block'
 }
 
@@ -83,8 +86,8 @@ async function signedInFlow() {
 
   if(txhash !== null){
     // Get result from the transaction
-    let result = await contract.getDonationFromTransaction(txhash)
-    console.log(result)    
+    let result = await contract.getDepositFromTransaction(txhash)
+    // console.log(result)    
   }
 
 }
@@ -93,18 +96,18 @@ async function getAndShowDeposits(){
 //   document.getElementById('donations-table').innerHTML = 'Loading ...'
   
   deposits.value = await contract.latestDeposits()
-  console.log(deposits.value)
+//   console.log(deposits.value)
 
-  console.log('Total Deposits -> ', await contract.getDepositsTotal())
+//   console.log('Total Deposits -> ', await contract.getDepositsTotal())
 
   deposits.value.forEach(element => {
-    console.log(`deposit of ${element.account_id} is ${element.total_amount} `, )
+    // console.log(`deposit of ${element.account_id} is ${element.total_amount} `, )
     totalDeposits.value.nearAmount += parseFloat(element.total_amount)
     if(element.account_id === wallet.accountId) {
         walletAccountDeposit = element.total_amount
     }    
 
-    console.log('***********', element.account_id === wallet.accountId ? element.total_amount : 0)
+    // console.log('***********', element.account_id === wallet.accountId ? element.total_amount : 0)
   });
 
   totalDeposits.value.nearAmount = roundToTwoDecimals(totalDeposits.value.nearAmount)
@@ -113,16 +116,17 @@ async function getAndShowDeposits(){
 
 const getAndShowContractData = async () => {
   
-  console.log('contract data block')
+//   console.log('contract data block')
 
   targetAmount.value = await contract.getTargetAmount()
-  console.log('target', targetAmount.value)
+//   console.log('target', targetAmount.value)
 
-  let deadline = await contract.getFundingDeadline()
-//   closingDate.value = new Date(deadline/1000000).toLocaleDateString("en-US")
-  closingDate.value = new Date(deadline/1000000)
-  closingDate.value.setDate(closingDate.value.getDate() + DAYS_FOR_DEADLINE)
-  closingDate.value = closingDate.value.toLocaleDateString("en-US")  
+  deadline = await contract.getFundingDeadline()
+  closingDate.value = new Date(deadline/1000000).toLocaleDateString("en-US")
+
+//   closingDate.value = new Date(deadline/1000000)
+//   closingDate.value.setDate(closingDate.value.getDate() + DAYS_FOR_DEADLINE)
+//   closingDate.value = closingDate.value.toLocaleDateString("en-US")  
 }
 
 const fetchBeneficiary = async () => {
@@ -131,9 +135,9 @@ const fetchBeneficiary = async () => {
 
 const claimFunds = async () => {
     beneficiaryClaimMessage.value = ''
-    console.log('claiming project funds ', closingDate.value)
+    // console.log('claiming project funds ', closingDate.value)
     if(closingDate.value < new Date().toLocaleDateString("en-US")) {
-        console.log('funding closed -> ', totalDeposits.value.nearAmount)        
+        // console.log('funding closed -> ', totalDeposits.value.nearAmount)        
         let result = await contract.claim(totalDeposits.value.nearAmount)
         
         if(result.includes("Error")) {
@@ -158,17 +162,18 @@ const getUsdFromNear = async (amount_in_near) => {
     return rounded_two_decimals
 }
 
-const getDateValue = () => {
-    let nanotime = 1678991332821693200
-    console.log(new Date(nanotime/1000000))
-}
+// const getDateValue = () => {
+//     let nanotime = 1678991332821693200
+//     console.log(new Date(nanotime/1000000))
+// }
 </script>
 
 <template>
     <v-container class="fill-height">        
         <v-responsive class="d-flex align-center text-center fill-height">
             <v-sheet class="mx-auto my-0 pa-8" color="transparent">
-                <h2 class="pb-6 text-primary">CHAKODY L.L.C | CrowdFunding for Pre-seed round</h2>  
+                <h2 class="pb-6 text-primary">CHAKODY L.L.C | Crypto Camps</h2>  
+                <h4 class="pb-6 text-primary">CrowdFunding Project 01: Pre-seed round</h4>
                 
                 <div v-if="isMounted">
                     <ProjectInfo 
@@ -209,9 +214,9 @@ const getDateValue = () => {
                             <v-text-field 
                                 density="compact" 
                                 variant="filled" 
-                                label="mm/dd/yyyy"
+                                label="Enter number of Days"
                                 class="mr-4 w-25"
-                                v-model="simpleDateValue"
+                                v-model="daysToAdd"
                             >
                             </v-text-field>
                             <v-btn @click="getNanoDate">Get Nanosecs</v-btn>

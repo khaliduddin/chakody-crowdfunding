@@ -98,6 +98,7 @@ impl Contract {
 
     #[private]
     pub fn change_deadline(&mut self, _new_deadline: u64) {
+        assert!(_new_deadline > env::block_timestamp, "New Target shall be later than today");
         self.deadline = _new_deadline;
     }
 

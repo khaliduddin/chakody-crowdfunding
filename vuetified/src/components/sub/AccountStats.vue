@@ -17,7 +17,7 @@ const disconnectWallet = () => {
 }
 
 const claimFunds = async () => {
-    console.log('claim funds')
+    // console.log('claim funds')
     claimMessage.value = 'Claim is in progress.. Please wait'
     isClaimComplete.value = false
     
@@ -36,7 +36,7 @@ const claimFunds = async () => {
     
     isClaimComplete.value = true
 
-    console.log('claim complete -> ',  result)
+    // console.log('claim complete -> ',  result)
 }
 
 // const test = async () => {

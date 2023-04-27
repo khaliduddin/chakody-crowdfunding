@@ -44,9 +44,9 @@ export class Contract {
     return depositsTotal / 10**24
   }
 
-  async getDonationFromTransaction(txhash) {
-    let donation_amount = await this.wallet.getTransactionResult(txhash);
-    return utils.format.formatNearAmount(donation_amount);
+  async getDepositFromTransaction(txhash) {
+    let deposit_amount = await this.wallet.getTransactionResult(txhash);
+    return utils.format.formatNearAmount(deposit_amount);
   }
 
   async deposit(amount) {
