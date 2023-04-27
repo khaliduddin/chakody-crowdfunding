@@ -32,8 +32,8 @@ export class Wallet {
     // asked to sign all transactions.
     this.createAccessKeyFor = createAccessKeyFor
     this.network = network
-    console.log('constructed -> ', this.network)
-    console.log('constructed -> ', this.createAccessKeyFor)
+    // console.log('constructed -> ', this.network)
+    // console.log('constructed -> ', this.createAccessKeyFor)
   }
 
   // To be called when the website loads
